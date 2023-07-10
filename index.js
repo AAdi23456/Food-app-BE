@@ -14,7 +14,7 @@ app.use(cors())
 app.use("/auth", Authrozation)
 app.use("/", Crudroutes)
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
 app.listen(3000, () => {
     try {
         connection()
