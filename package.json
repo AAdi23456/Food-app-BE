@@ -1,12 +1,11 @@
 {
-  "name": "mock4prep",
+  "name": "mock4",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "build": "npm run generate-swagger-doc",
-    "generate-swagger-doc": "swagger-jsdoc -d swgger.js -o swagger-ui"
+    "start": "node index.js"
+    
   },
   "keywords": [],
   "author": "",
