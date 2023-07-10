@@ -1,4 +1,4 @@
-const { blacklistmodel } = require("../models/reg")
+const { blacklistmodel } = require("../models/user")
 const jwt = require("jsonwebtoken")
 
 const Validate = (req, res, next) => {
@@ -14,7 +14,7 @@ const Validate = (req, res, next) => {
         }
         const decoded = jwt.verify(token, "masai")
         console.log(decoded);
-        req.body.email = decoded.email
+        req.body.userId = decoded.id
         req.body.token = ""
         next()
 

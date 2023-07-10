@@ -1,255 +1,151 @@
-const { catmodel } = require("../models/store")
+const { restuarentmodel } = require("../models/restuarent")
 const express = require("express")
 const Crudroutes = express.Router()
-const  Validate  = require("../middleware/validation")
-
-Crudroutes.post("/create",Validate, async (req, res) => {
+const Validate = require("../middleware/validation")
+const {ordersmodel}=require("../models/orders")
+Crudroutes.post("/orders",Validate, async (req, res) => {
     try {
-        const { cat1, email, cat2, cat3 } = req.body 
-        const datatodb = new catmodel({ cat1, email, cat2, cat3 })
-        await datatodb.save()
-        return res.status(200).json({ msg: "data saved success" })
+        const {
+         user: userId,
+          restaurantId,
+          items,
+          totalPrice,
+          deliveryAddress,
+          status
+        } = req.body;
+        const newOrder = new ordersmodel({
+          _id: new ObjectId(),
+          user: userId,
+          restaurant: restaurantId,
+          items,
+          totalPrice,
+          deliveryAddress,
+          status
+        });
+    
+       
+        await newOrder.save();
+    
+        return res.json({ msg: 'New order created successfully', order: newOrder });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ msg: 'Internal Server Error' });
+      }
+})
+Crudroutes.get("/orders/:id",async(req,res)=>{
+    const {id}=req.params
+    try {
+        const data=await ordersmodel.findById(id)
+        if(!data){
+            return res.status(400).json({msg:"No order found"})
+        }
+        return res.status(200).json({orders:data})
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ msg: 'Internal Server Error' });
+    }
+})
+Crudroutes.put('/orders/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+  
+     
+      const order = await ordersmodel.findById(id);
+      if (!order) {
+        return res.status(404).json({ msg: 'Order not found' });
+      }
+  
+     
+      order.status = status;
+      await order.save();
+  
+      return res.status(204).json({ msg: 'Order status updated successfully', order });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ msg: 'Internal Server Error' });
+    }
+  });
+  
+Crudroutes.get("/restaurants", async (req, res) => {
+    try {
+        const data = await restuarentmodel.find()
+        console.log(data);
+       
+        return res.status(200).json({ msg: data })
+    } catch (error) {
+        return res.status(500).json(error)
+    }
+})
+
+Crudroutes.get("/restaurants/:id", async (req, res) => {
+    try {
+        const { id } = req.params
+
+        const data = await restuarentmodel.findById(id)
+        console.log(data);
+        if(!data){
+            return res.status(400).json({msg:"no data found"})
+        }
+        return res.status(200).json({ msg: data })
     } catch (error) {
         console.log(error);
         return res.status(500).json(error)
-       
     }
 })
-Crudroutes.get("/show", Validate, async (req, res) => {
-    try {
-        const { email } = req.body
-
-        const data = await catmodel.find({ email })
-        return res.status(200).json({ msg: data })
-    } catch (error) {
-        return res.status(500).json(error)
-    }
-})
-
-Crudroutes.get("/show/:id", Validate, async (req, res) => {
+Crudroutes.get("/restaurants/:id/menu", async (req, res) => {
     try {
         const { id } = req.params
 
-        const data = await catmodel.findById(id)
-        return res.status(200).json({ msg: data })
+        const data = await restuarentmodel.findById(id)
+        return res.status(200).json({ msg: data.menu })
     } catch (error) {
         return res.status(500).json(error)
     }
 })
-Crudroutes.delete("/delete/:id", Validate, async (req, res) => {
+
+Crudroutes.delete("/api/restaurants/:rid/menu/:mid", async (req, res) => {
     try {
-        const { id } = req.params
+        const { rid, mid } = req.params
 
-        const data = await catmodel.findByIdAndDelete(id)
-        return res.status(200).json({ msg: "data deleted successfully" })
+        const data = await catmodel.findById(rid)
+        if (!data) {
+            return res.status(200).json({ msg: "no restaurants found " })
+        }
+        const menuIndex = data.menu.findIndex((menu) => menu._id.toString() === mid);
+        if (menuIndex == -1) {
+            return res.status(404).json({ msg: 'Menu item not found' });
+        }
+        data.menu.splice(menuIndex, 1)
+        await data.save()
+        return res.json({ msg: 'Menu item deleted successfully' });
     } catch (error) {
         return res.status(500).json(error)
     }
 })
-Crudroutes.patch("/update/:id", Validate, async (req, res) => {
+Crudroutes.post('/restaurant/:id/menu', async (req, res) => {
     try {
-        const { id, data1 } = req.params
+        const { id } = req.params;
+        const { name, description, price, image } = req.body;
+        const restaurant = await restuarentmodel.findById(id);
+        if (!restaurant) {
+            return res.status(404).json({ msg: 'Restaurant not found' });
+        }
+        const newMenu = {
+            _id: new ObjectId(),
+            name,
+            description,
+            price,
+            image,
+        };
+        restaurant.menu.push(newMenu);
+        await restaurant.save();
 
-        const data = await catmodel.findByIdAndUpdate(id, data1)
-        return res.status(200).json({ msg: "data updated successfully" })
+        return res.status(201).json({ msg: 'New menu added successfully', menu: newMenu });
     } catch (error) {
-        return res.status(500).json(error)
+        console.error(error);
+        return res.status(500).json({ msg: 'Internal Server Error' });
     }
-})
-/**
- * @swagger
- * tags:
- *   name: CRUD
- *   description: API endpoints for creating, retrieving, updating, and deleting data
- */
+});
 
-/**
- * @swagger
- * /create:
- *   post:
- *     tags: [CRUD]
- *     summary: Create data
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               cat1:
- *                 type: string
- *               email:
- *                 type: string
- *               cat2:
- *                 type: string
- *               cat3:
- *                 type: string
- *     responses:
- *       200:
- *         description: Data saved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *       500:
- *         description: Failed to save data
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- */
-
-/**
- * @swagger
- * /show:
- *   get:
- *     tags: [CRUD]
- *     summary: Retrieve data
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Data retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: array
- *                   items:
- *                     type: object
- *       500:
- *         description: Failed to retrieve data
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- */
-
-/**
- * @swagger
- * /show/{id}:
- *   get:
- *     tags: [CRUD]
- *     summary: Retrieve data by ID
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Data retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: object
- *       500:
- *         description: Failed to retrieve data
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- */
-
-/**
- * @swagger
- * /delete/{id}:
- *   delete:
- *     tags: [CRUD]
- *     summary: Delete data by ID
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Data deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *       500:
- *         description: Failed to delete data
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- */
-
-/**
- * @swagger
- * /update/{id}:
- *   patch:
- *     tags: [CRUD]
- *     summary: Update data by ID
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               data1:
- *                 type: object
- *     responses:
- *       200:
- *         description: Data updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *       500:
- *         description: Failed to update data
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- */
-
-module.exports=Crudroutes
+module.exports = Crudroutes

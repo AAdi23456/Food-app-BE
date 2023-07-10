@@ -12,8 +12,8 @@ const Crudroutes = require("./routes/CRUDop")
 app.use(cors())
 
 
-app.use("/", Crudroutes)
-app.use("/auth", Authrozation)
+app.use("/ok", Crudroutes)
+app.use("/api", Authrozation)
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.listen(3000, () => {
     try {

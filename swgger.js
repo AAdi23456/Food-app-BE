@@ -1,5 +1,4 @@
 const swaggerJsdoc = require('swagger-jsdoc');
-const path = require('path');
 
 const options = {
   swaggerDefinition: {
@@ -10,7 +9,7 @@ const options = {
     },
     basePath: '/',
   },
-  apis: [path.resolve(__dirname, './routes', '*.js')], // Replace 'routes' with the directory name of your API route files
+  apis: ['./CRUDop.js'], // Replace with the path to your API route files
 };
 
 const specs = swaggerJsdoc(options);
