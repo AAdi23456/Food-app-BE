@@ -54,7 +54,7 @@ login.post("/", async (req, res) => {
 
   }
 })
-Authorization.post("/:id/reset", async (req, res) => {
+Authorization.put("/:id/reset", async (req, res) => {
   try {
     const { id } = req.params;
     const { password, newpassword } = req.body;
