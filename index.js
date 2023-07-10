@@ -1,8 +1,7 @@
 
-const swaggerUi = require("swagger-ui-express");
-const swaggerJsdoc = require("swagger-jsdoc");
+
 const express = require("express")
-const specs = require("./swgger")
+
 const app = express()
 const cors = require("cors");
 app.use(express.json())
@@ -15,7 +14,7 @@ app.use("/auth", Authrozation)
 app.use("/", Crudroutes)
 
 
-app.listen(3000, () => {
+app.listen(8080, () => {
     try {
         connection()
     } catch (error) {
