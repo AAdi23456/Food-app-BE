@@ -6,17 +6,17 @@ const {ordersmodel}=require("../models/orders")
 Crudroutes.post("/orders", async (req, res) => {
     try {
         const {
-         user: userId,
-          restaurantId,
+        
+         
           items,
           totalPrice,
           deliveryAddress,
           status
         } = req.body;
         const newOrder = new ordersmodel({
-          _id: new ObjectId(),
-          user: userId,
-          restaurant: restaurantId,
+         
+         
+        
           items,
           totalPrice,
           deliveryAddress,
