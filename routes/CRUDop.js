@@ -77,6 +77,16 @@ Crudroutes.get("/restaurants", async (req, res) => {
         return res.status(500).json(error)
     }
 })
+Crudroutes.post("/restaurants", async (req, res) => {
+    try {
+        const {name,addreess,menu} = req.body
+       await new restuarentmodel({name,addreess,menu}).save()
+       
+        return res.status(200).json({ msg: "resturent added successfully" })
+    } catch (error) {
+        return res.status(500).json(error)
+    }
+})
 
 Crudroutes.get("/restaurants/:id", async (req, res) => {
     try {
