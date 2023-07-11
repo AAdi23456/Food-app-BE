@@ -4,9 +4,9 @@ const bcrypt = require("bcrypt")
 const { reg_model, blacklistmodel } = require("../models/user")
 const Validate = require("../middleware/validation")
 const jwt = require("jsonwebtoken")
-
-
-Authorization.post("/register", async (req, res) => {
+const register=express.Router()
+const login=express.Router()
+register.post("/", async (req, res) => {
   const { name, email, password,address } = req.body
   console.log(req.body);
   try {
@@ -28,7 +28,7 @@ Authorization.post("/register", async (req, res) => {
   }
 })
   ;
-Authorization.post("/login", async (req, res) => {
+login.post("/", async (req, res) => {
   const { email, password } = req.body
   try {
     const user = await reg_model.findOne({ email })
@@ -54,32 +54,32 @@ Authorization.post("/login", async (req, res) => {
 
   }
 })
-Authorization.post("/user/:id/reset", async (req, res) => {
+Authorization.post("/:id/reset", async (req, res) => {
   try {
     const { id } = req.params;
     const { password, newpassword } = req.body;
     const data = await reg_model.findById(id);
     console.log(data);
+    console.log(password);
 
     const check = await bcrypt.compare(password, data.password);
+    console.log(check);
     if (!check) {
       return res.status(400).json({ msg: "Wrong Password" });
     }
 
     const newPasswordHash = await bcrypt.hash(newpassword, 10);
     const updatePassword = await reg_model.findByIdAndUpdate(id, { password: newPasswordHash });
-
-    console.log(updatePassword.length>0);
-    if (updatePassword) {
-      return res.status(204).json({ msg: "Password changed successfully" });
-    } else {
-      return res.status(400).json({ msg: "Something went wrong" });
+    if(check){
+      return res.status(204).json({ "msg": "Password changed successfully" });
     }
+    
+    
   } catch (error) {
     return res.status(500).json({ msg: error.message });
   }
 });
 
-module.exports = Authorization
+module.exports = {Authorization,register,login}
 
 
