@@ -114,7 +114,7 @@ Crudroutes.get("/restaurants/:id/menu", async (req, res) => {
     }
 })
 
-Crudroutes.delete("/api/restaurants/:rid/menu/:mid", async (req, res) => {
+Crudroutes.delete("/restaurants/:rid/menu/:mid", async (req, res) => {
     try {
         const { rid, mid } = req.params
 
@@ -133,7 +133,7 @@ Crudroutes.delete("/api/restaurants/:rid/menu/:mid", async (req, res) => {
         return res.status(500).json(error)
     }
 })
-Crudroutes.post('/restaurant/:id/menu', async (req, res) => {
+Crudroutes.post('/restaurants/:id/menu', async (req, res) => {
     try {
         const { id } = req.params;
         const { name, description, price, image } = req.body;
@@ -142,7 +142,7 @@ Crudroutes.post('/restaurant/:id/menu', async (req, res) => {
             return res.status(404).json({ msg: 'Restaurant not found' });
         }
         const newMenu = {
-            _id: new ObjectId(),
+           
             name,
             description,
             price,
