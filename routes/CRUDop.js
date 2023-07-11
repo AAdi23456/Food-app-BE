@@ -3,7 +3,7 @@ const express = require("express")
 const Crudroutes = express.Router()
 const Validate = require("../middleware/validation")
 const {ordersmodel}=require("../models/orders")
-Crudroutes.post("/orders",Validate, async (req, res) => {
+Crudroutes.post("/orders", async (req, res) => {
     try {
         const {
          user: userId,
